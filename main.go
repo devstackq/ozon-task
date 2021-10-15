@@ -11,7 +11,17 @@ import (
 	"time"
 )
 
+var (
+	// urlRepository  repository.UrlRepository = redis.Positions.NewPSqlRepository()
+)
+
 func main() {
+
+	// conn,_ := redis.Dial("tcp", ":6379")
+	// defer conn.Close()
+	// conn.Do("set", "c1", "hello")
+	
+
 	http.HandleFunc("/", urlHandler)
 	http.ListenAndServe(":9000", nil)
 }
@@ -56,7 +66,7 @@ func urlHandler(w http.ResponseWriter, r *http.Request) {
 		//get json : url -> validUrl,  generate random short link, check isUniq in Db ? -> save Redis & Db
 	case "POST":
 
-		err := json.NewDecoder(r.Body).Decode(&d)
+		err := json.NewDecoder(r.Body).Decode(&UrlStruct)
 		if err != nil {
 			log.Println(err)
 		}
@@ -69,7 +79,7 @@ func urlHandler(w http.ResponseWriter, r *http.Request) {
 					UrlStruct.Randomaizer()
 
 					if UrlStruct.ShortUrl != "" {
-						fmt.Println(d, "create short url")
+						fmt.Println(UrlStruct, "create short url")
 						//save redis, then db, return json. new Url
 						w.WriteHeader(200)
 						w.Write([]byte(UrlStruct.ShortUrl))
