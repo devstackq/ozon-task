@@ -3,7 +3,6 @@ package cache
 import (
 	"time"
 
-	"github.com/devstackq/ozon/entity"
 	"github.com/go-redis/redis/v7"
 )
 
@@ -31,8 +30,11 @@ func (c *Cache) getClient() *redis.Client {
 
 func (c *Cache) SaveRedis(key string, url string) error {
 	client := c.getClient()
+	//save like key url, value - short
 	client.Set(key, url, c.expires)
+	//case 2 save reverse, key - shor, value - url
+	client.Set(url, key, c.expires)
 	return nil
 }
 
-func  (c *Cache) GetRedis(key string) *entity.UrlData { return nil }
+func  (c *Cache) GetRedis(key string) string{ return "" }

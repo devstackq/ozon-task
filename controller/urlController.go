@@ -42,32 +42,37 @@ func (*controller) GenerateNewLink(res http.ResponseWriter, req *http.Request) {
 		json.NewEncoder(res).Encode(errors.New("Error: not valid url"))
 		return
 	} else {
-		if ok := urlService.IsUniqUrl(); !ok {
-			//get Redis || db full url key, if not exist return true, else return by key redis || db short url
+		// if ok := urlService.IsUniqUrl(); !ok {
+		//get Redis || db full url key, if not exist return true, else return by key redis || db short url
+		//check value map[key]val - redis - value == url.Url
 
-			// urlService.GetUrlRedis(&url)
-			urlService.GetUrlDB(&url)
-			return
-		} else {
-			url.Host = host
-			//create new url
-			if err, shortHost := urlService.CreateShortHost(&url); err != nil {
-				res.WriteHeader(http.StatusInternalServerError)
-				json.NewEncoder(res).Encode(err.Error())
-				return
-			} else {
-				if err, shortUrl := urlService.Randomaizer(); err != nil {
-					//save Cache, then Db
+		if urlFromRedis := urlCache.GetRedis(url.Url); urlFromRedis == "" {
+			if urlFromDb := urlService.GetUrlDB(&url); urlFromDb == "" {
+				//create new shor url, save redis & db
+				url.Host = host
+				//create new url
+				if err, shortHost := urlService.CreateShortHost(&url); err != nil {
 					res.WriteHeader(http.StatusInternalServerError)
 					json.NewEncoder(res).Encode(err.Error())
 					return
 				} else {
-					url.ShortUrl = shortHost + shortUrl
-					//saveRedis(&url)
-					urlCache.SaveRedis(url.ShortUrl, url.Url)
-					urlService.SaveUrlDB(&url)
+					if err, shortUrl := urlService.Randomaizer(); err != nil {
+						//save Cache, then Db
+						res.WriteHeader(http.StatusInternalServerError)
+						json.NewEncoder(res).Encode(err.Error())
+						return
+					} else {
+						url.ShortUrl = shortHost + shortUrl
+						//saveRedis(&url)
+						urlCache.SaveRedis(url.ShortUrl, url.Url)
+						urlService.SaveUrlDB(&url)
+					}
 				}
+			} else {
+				//write json urlFromDb
 			}
+		} else {
+			//write json urlFromRedis
 		}
 	}
 }

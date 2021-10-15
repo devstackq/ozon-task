@@ -1,6 +1,8 @@
 package main
 
 import (
+	"time"
+
 	"github.com/devstackq/ozon/cache"
 	"github.com/devstackq/ozon/controller"
 	router "github.com/devstackq/ozon/http"
@@ -12,7 +14,7 @@ import (
 var (
 	urlRepository repository.UrlRepository = repository.NewPSqlRepository()
 	urlService    service.UrlService       = service.NewUrlService(urlRepository)
-	urlCache      cache.UrlCache           = cache.NewRedisCache("localhost:6379", 1, 10)
+	urlCache      cache.UrlCache           = cache.NewRedisCache("localhost:6379", 1, 1 * time.Second)
 	urlController controller.UrlController = controller.NewUrlController(urlService, urlCache)
 	httpRouter    router.Router            = router.NewMuxRouter()
 )
