@@ -1,23 +1,38 @@
 package cache
 
-import "time"
+import (
+	"time"
+
+	"github.com/devstackq/ozon/entity"
+	"github.com/go-redis/redis/v7"
+)
 
 type Cache struct {
-	host string
-	db int
+	host    string
+	db      int
 	expires time.Duration
 }
 
-func NewRedisCache(host string, db int, expires time.Duration) *Cache {
+func NewRedisCache(host string, db int, expires time.Duration) UrlCache {
 	return &Cache{
-		host : host,
-		db: db,
+		host:    host,
+		db:      db,
 		expires: expires,
 	}
 }
 
-func (c *Cache) getClient() *Cache {
-return &Cache{}
+func (c *Cache) getClient() *redis.Client {
+	return redis.NewClient(&redis.Options{
+		Addr:     c.host,
+		Password: "",
+		DB:       c.db,
+	})
 }
 
-func Set(key string){}
+func (c *Cache) SaveRedis(key string, url string) error {
+	client := c.getClient()
+	client.Set(key, url, c.expires)
+	return nil
+}
+
+func  (c *Cache) GetRedis(key string) *entity.UrlData { return nil }
