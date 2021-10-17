@@ -14,7 +14,7 @@ import (
 var (
 	urlRepository repository.UrlRepository = repository.NewPSqlRepository()
 	urlService    service.UrlService       = service.NewUrlService(urlRepository)
-	urlCache      cache.UrlCache           = cache.NewRedisCache("localhost:6379", 1, 1 * time.Second)
+	urlCache      cache.UrlCache           = cache.NewRedisCache("localhost:6379", 1, 24*time.Hour)
 	urlController controller.UrlController = controller.NewUrlController(urlService, urlCache)
 	httpRouter    router.Router            = router.NewMuxRouter()
 )

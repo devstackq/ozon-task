@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"log"
 	"time"
 
 	"github.com/go-redis/redis/v7"
@@ -37,4 +38,13 @@ func (c *Cache) SaveRedis(key string, url string) error {
 	return nil
 }
 
-func  (c *Cache) GetRedis(key string) string{ return "" }
+func  (c *Cache) GetRedis(key string) string{ 
+
+	client := c.getClient()
+	val, err := client.Get(key).Result()
+	if err != nil {
+	log.Println(err)
+		return ""
+	}
+	return val
+ }
