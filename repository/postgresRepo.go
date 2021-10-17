@@ -48,14 +48,14 @@ func (p *pSqlRepo) Create(url *entity.UrlData) error {
 }
 
 func (p *pSqlRepo) GetByUrl(url *entity.UrlData) (result string, err error) {
-	p.db.QueryRow(`SELECT short FROM where url=$1`, url.Url).Scan(&result)
-	log.Println("get from db by url", result)
+	p.db.QueryRow(`SELECT short FROM links where url=$1`, url.Url).Scan(&result)
 	return result, nil
 }
 
 func (p *pSqlRepo) GetByShort(url *entity.UrlData) (result string, err error) {
-	p.db.QueryRow(`SELECT url FROM where short=$1`, url.ShortUrl).Scan(&result)
-	log.Println("get from db by short", result)
+	log.Println(url.Url)
+	row := p.db.QueryRow(`SELECT url FROM links  WHERE short=$1`, url.Url)
+	err = row.Scan(&result)
 	
 	return result, nil
 }

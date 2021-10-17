@@ -29,8 +29,7 @@ func NewUrlController(service service.UrlService, cache cache.UrlCache) UrlContr
 	return &controller{}
 }
 
-//post, query url -> check redis else check db else save redis, db, return new short url
-//localhost:8000, json:{url : https://www.google.com/?search/dposak0932jdoisfojsa}
+//rest : https://localhost:8000, json:{url : https://www.google.com/?search/dposak0932jdoisfojsa}
 
 func (*controller) GenerateNewLink(res http.ResponseWriter, req *http.Request) {
 	var url entity.UrlData
@@ -81,8 +80,8 @@ func (*controller) GenerateNewLink(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-//get 1 case : query/short -> getRedist by Short -> if !find -> getDbByShort -> return url
-//http://localhost:8000/?short=https://youtube.com?watch?i3jdoksjlkfj02okjdlkasjd
+
+//rest : http://localhost:8000/?short=ye.com/zk0Aef2lWP
 
 func (*controller) GetLinkByShortLink(res http.ResponseWriter, req *http.Request) {
 	
@@ -90,11 +89,6 @@ func (*controller) GetLinkByShortLink(res http.ResponseWriter, req *http.Request
 	query := req.URL.Query()["short"]
 	urlData.Url = query[0]
 
-	if err, host := urlService.IsValidUrl(&urlData); err != nil || host == "" {
-		res.WriteHeader(http.StatusInternalServerError)
-		res.Write([]byte("not valid url"))
-		return
-	} else {
 		if urlFromRedis := urlCache.GetRedis(urlData.Url); urlFromRedis == "" {
 			if urlFromDb, err := urlService.GetShortDB(&urlData); urlFromDb == "" && err == nil {
 				res.WriteHeader(400)
@@ -104,12 +98,8 @@ func (*controller) GetLinkByShortLink(res http.ResponseWriter, req *http.Request
 				res.WriteHeader(200)
 				res.Write([]byte(urlFromDb))
 			}
-			res.WriteHeader(400)
-			res.Write([]byte("bad request2"))
-			return
 		} else {
 			res.WriteHeader(200)
 			res.Write([]byte(urlFromRedis))
 		}
-	}
 }
